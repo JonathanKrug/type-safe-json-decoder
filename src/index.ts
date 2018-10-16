@@ -196,6 +196,34 @@ export function equal <T>(value: T): Decoder<T> {
   })
 }
 
+
+/**
+ * Decode a value and make sure the result is unequal to another value. Useful for
+ * checking for empty Strings.
+ * ```typescript
+ * const decoder = object(
+ *   ['noEmptyString', isNot("")],
+ *   (noEmptyString) => ({noEmptyString})
+ * )
+ * decoder.decodeJSON('{"noEmptyString": "string"}')
+ * ```
+ * @param value Value that the input must be different (`!==`).
+ * @returns A Decoder that decodes a value that not equals the given value.
+ */
+export function isNot<T>(value: T): Decoder<T> {
+  return createDecoder((obj, at) => {
+    if (obj === value) {
+      throw decodeError({
+        at, 
+        expected: JSON.stringify(value),
+        got: obj
+      })
+    }
+    
+    return obj;
+  }
+}
+
 /**
  * Decode an array using another decoder for each element. Can only decode
  * arrays of a single type. If this feels like a limitation, you may be looking
